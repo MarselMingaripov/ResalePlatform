@@ -1,4 +1,4 @@
-package ru.min.resaleplatform.dto;
+package ru.min.resaleplatform.security.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

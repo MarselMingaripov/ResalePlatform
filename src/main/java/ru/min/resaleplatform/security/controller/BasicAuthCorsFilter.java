@@ -1,4 +1,4 @@
-package ru.min.resaleplatform.controller;
+package ru.min.resaleplatform.security.controller;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;

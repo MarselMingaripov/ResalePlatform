@@ -1,4 +1,4 @@
-package ru.min.resaleplatform.config;
+package ru.min.resaleplatform.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

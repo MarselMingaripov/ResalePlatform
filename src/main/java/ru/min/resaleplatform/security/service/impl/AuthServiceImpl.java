@@ -1,13 +1,13 @@
-package ru.min.resaleplatform.service.impl;
+package ru.min.resaleplatform.security.service.impl;
 
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
-import ru.min.resaleplatform.dto.RegisterReq;
-import ru.min.resaleplatform.dto.Role;
-import ru.min.resaleplatform.service.AuthService;
+import ru.min.resaleplatform.security.dto.RegisterReq;
+import ru.min.resaleplatform.security.dto.Role;
+import ru.min.resaleplatform.security.service.AuthService;
 
 @Service
 public class AuthServiceImpl implements AuthService {
