@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.min.resaleplatform.model.User;
 import ru.min.resaleplatform.model.dto.NewPasswordDto;
 import ru.min.resaleplatform.model.dto.UserDto;
@@ -28,6 +29,17 @@ public class UserController {
     @PostMapping("/set_password")
     public ResponseEntity<Void> setPassword(@RequestBody NewPasswordDto newPasswordDto){
         userService.updatePassword(newPasswordDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/me")
+    public ResponseEntity<UserDto> updateUser(UserDto userDto){
+        return ResponseEntity.ok(userService.updateUser(userDto));
+    }
+
+    @PatchMapping("/me/image")
+    public ResponseEntity<Void> updateImage(@RequestParam(value = "avatar") MultipartFile multipartFile){
+        userService.updateImage(multipartFile);
         return ResponseEntity.ok().build();
     }
 }

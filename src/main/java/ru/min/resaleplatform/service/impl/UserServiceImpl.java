@@ -2,6 +2,7 @@ package ru.min.resaleplatform.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -12,13 +13,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ru.min.resaleplatform.model.User;
 import ru.min.resaleplatform.model.dto.NewPasswordDto;
 import ru.min.resaleplatform.model.dto.UserDto;
 import ru.min.resaleplatform.repository.UserRepository;
+import ru.min.resaleplatform.security.dto.Role;
 import ru.min.resaleplatform.service.UserService;
 import ru.min.resaleplatform.service.ValidationService;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -29,6 +34,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ValidationService validationService;
     private final PasswordEncoder encoder;
+    private final ModelMapper modelMapper;
 
     Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -43,9 +49,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto findUser() {
-        User user = userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).get();
-        user.setImage("sdf");
-        UserDto userDto = new UserDto(user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getPhone(), user.getImage());
+        User user = getCurrentUser();
+        UserDto userDto = modelMapper.map(user, UserDto.class);
         logger.info(userDto.toString());
         return userDto;
     }
@@ -68,6 +73,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDto updateUser(UserDto userDto){
+        User user = getCurrentUser();
+        user.setId(userDto.getId());
+        user.setEmail(userDto.getEmail());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setPhone(userDto.getPhone());
+        user.setImage(userDto.getImage());
+        userRepository.save(user);
+        logger.info(user.toString());
+        return modelMapper.map(user, UserDto.class);
+    }
+
+    @Override
     public User deleteById(int id) {
         return null;
     }
@@ -78,12 +97,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateData(User user) {
-        return null;
+    public void updateImage(MultipartFile image) {
+        User user = getCurrentUser();
+        try{
+            if (!image.isEmpty()){
+                String fileName = " " + user.getEmail() + "_" +
+                        image.getOriginalFilename();
+                image.transferTo(new File("C:\\Users\\User\\Documents\\IdeaProjects\\ResalePlatform\\src\\main\\resources\\static\\images" + fileName));
+                user.setImage("C:\\Users\\User\\Documents\\IdeaProjects\\ResalePlatform\\src\\main\\resources\\images" + fileName);
+                userRepository.save(user);
+                logger.info(fileName);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    @Override
-    public User updateImage(String image) {
-        return null;
+    private User getCurrentUser(){
+        return userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).get();
     }
 }

@@ -19,4 +19,6 @@ public class Ads {
     private String description;
     private int price;
     private String title;
+    @ManyToOne
+    private User adsAuthor;
 }

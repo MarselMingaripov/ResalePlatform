@@ -1,6 +1,7 @@
 package ru.min.resaleplatform.service;
 
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.multipart.MultipartFile;
 import ru.min.resaleplatform.model.User;
 import ru.min.resaleplatform.model.dto.NewPasswordDto;
 import ru.min.resaleplatform.model.dto.UserDto;
@@ -15,11 +16,11 @@ public interface UserService {
 
     void updatePassword(NewPasswordDto newPasswordDto);
 
+    UserDto updateUser(UserDto userDto);
+
     User deleteById(int id);
 
     List<User> findAll();
 
-    User updateData(User user);
-
-    User updateImage(String image);
+    void updateImage(MultipartFile image);
 }
