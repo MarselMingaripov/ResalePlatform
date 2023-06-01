@@ -12,7 +12,7 @@ import ru.min.resaleplatform.model.dto.NewPasswordDto;
 import ru.min.resaleplatform.model.dto.UserDto;
 import ru.min.resaleplatform.service.UserService;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(value = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -38,7 +38,7 @@ public class UserController {
     }
 
     @PatchMapping("/me/image")
-    public ResponseEntity<Void> updateImage(@RequestParam(value = "avatar") MultipartFile multipartFile){
+    public ResponseEntity<Void> updateImage(@RequestParam(value = "image") MultipartFile multipartFile){
         userService.updateImage(multipartFile);
         return ResponseEntity.ok().build();
     }

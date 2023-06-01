@@ -23,4 +23,6 @@ public interface UserService {
     List<User> findAll();
 
     void updateImage(MultipartFile image);
+
+    User getCurrentUser();
 }

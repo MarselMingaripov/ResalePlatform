@@ -25,6 +25,7 @@ import ru.min.resaleplatform.service.ValidationService;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -51,7 +52,8 @@ public class UserServiceImpl implements UserService {
     public UserDto findUser() {
         User user = getCurrentUser();
         UserDto userDto = modelMapper.map(user, UserDto.class);
-        logger.info(userDto.toString());
+        //logger.info(userDto.toString());
+        logger.info(userDto.toString() + "me");
         return userDto;
     }
 
@@ -100,12 +102,20 @@ public class UserServiceImpl implements UserService {
     public void updateImage(MultipartFile image) {
         User user = getCurrentUser();
         try{
-            if (!image.isEmpty()){
-                String fileName = " " + user.getEmail() + "_" +
+            if (image.getContentType().startsWith("image/")){
+                String fileName = user.getFirstName() + "_" +
                         image.getOriginalFilename();
-                image.transferTo(new File("C:\\Users\\User\\Documents\\IdeaProjects\\ResalePlatform\\src\\main\\resources\\static\\images" + fileName));
-                user.setImage("C:\\Users\\User\\Documents\\IdeaProjects\\ResalePlatform\\src\\main\\resources\\images" + fileName);
+
+                image.transferTo(new File("C:\\Users\\User\\Documents\\IdeaProjects\\ResalePlatform\\src\\main\\resources\\static\\" + fileName));
+                user.setImage("\\static\\" + fileName);
                 userRepository.save(user);
+                logger.info(image.getContentType());
+                /*String uploadDir = "C:\\Users\\User\\Documents\\IdeaProjects\\ResalePlatform\\src\\main\\resources\\static\\images";
+                File uploadPath = new File(uploadDir);
+                File avatarFile = new File(uploadPath.getAbsolutePath() + File.separator + fileName);
+                image.transferTo(avatarFile);
+                user.setImage(fileName);*/
+                //userRepository.save(user);
                 logger.info(fileName);
             }
         } catch (IOException e) {
@@ -113,7 +123,8 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private User getCurrentUser(){
+    @Override
+    public User getCurrentUser(){
         return userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).get();
     }
 }
