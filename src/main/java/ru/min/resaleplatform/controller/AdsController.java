@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.min.resaleplatform.model.dto.AdsDto;
 import ru.min.resaleplatform.model.dto.AdsPropertiesDto;
+import ru.min.resaleplatform.model.dto.FullAdsDto;
 import ru.min.resaleplatform.model.dto.ResponseWrapperComment;
 import ru.min.resaleplatform.service.AdsService;
 
@@ -40,5 +41,10 @@ public class AdsController {
     @GetMapping()
     public ResponseEntity<ResponseWrapperComment> getAllAds(){
         return ResponseEntity.ok(adsService.getAllAds());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<FullAdsDto> getAdsById(@PathVariable int id){
+        return ResponseEntity.ok(adsService.findAdsById(id));
     }
 }

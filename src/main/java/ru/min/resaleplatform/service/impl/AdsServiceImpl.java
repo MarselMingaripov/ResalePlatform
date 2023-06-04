@@ -11,6 +11,7 @@ import ru.min.resaleplatform.model.Ads;
 import ru.min.resaleplatform.model.User;
 import ru.min.resaleplatform.model.dto.AdsDto;
 import ru.min.resaleplatform.model.dto.AdsPropertiesDto;
+import ru.min.resaleplatform.model.dto.FullAdsDto;
 import ru.min.resaleplatform.model.dto.ResponseWrapperComment;
 import ru.min.resaleplatform.repository.AdsRepository;
 import ru.min.resaleplatform.service.AdsService;
@@ -82,5 +83,19 @@ public class AdsServiceImpl implements AdsService {
             adsDtos.add(new AdsDto(ad.getAdsAuthor().getId(), ad.getImage(), ad.getId(), ad.getPrice(), ad.getTitle()));
         }
         return new ResponseWrapperComment(adsDtos.size(), adsDtos);
+    }
+
+    @Override
+    public FullAdsDto findAdsById(int id){
+        Ads ads = adsRepository.findById(id).orElseThrow();
+        return new FullAdsDto(ads.getId(),
+                ads.getAdsAuthor().getFirstName(),
+                ads.getAdsAuthor().getLastName(),
+                ads.getDescription(),
+                ads.getAdsAuthor().getEmail(),
+                ads.getImage(),
+                ads.getAdsAuthor().getPhone(),
+                ads.getPrice(),
+                ads.getTitle());
     }
 }

@@ -3,14 +3,19 @@ package ru.min.resaleplatform.model.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AdsPropertiesDto {
+public class FullAdsDto {
 
+    private int pk;
+    private String authorFirstName;
+    private String authorLastName;
     private String description;
+    private String email;
+    private String image;
+    private String phone;
     private int price;
     private String title;
 }

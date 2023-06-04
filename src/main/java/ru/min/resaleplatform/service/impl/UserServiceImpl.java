@@ -52,8 +52,6 @@ public class UserServiceImpl implements UserService {
     public UserDto findUser() {
         User user = getCurrentUser();
         UserDto userDto = modelMapper.map(user, UserDto.class);
-        //logger.info(userDto.toString());
-        logger.info(userDto.toString() + "me");
         return userDto;
     }
 
@@ -77,12 +75,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUser(UserDto userDto){
         User user = getCurrentUser();
-        user.setId(userDto.getId());
-        user.setEmail(userDto.getEmail());
+        //user.setId(userDto.getId());
+        //user.setEmail(userDto.getEmail());
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
         user.setPhone(userDto.getPhone());
-        user.setImage(userDto.getImage());
+        //user.setImage(userDto.getImage());
         userRepository.save(user);
         logger.info(user.toString());
         return modelMapper.map(user, UserDto.class);
@@ -110,12 +108,6 @@ public class UserServiceImpl implements UserService {
                 user.setImage("\\static\\" + fileName);
                 userRepository.save(user);
                 logger.info(image.getContentType());
-                /*String uploadDir = "C:\\Users\\User\\Documents\\IdeaProjects\\ResalePlatform\\src\\main\\resources\\static\\images";
-                File uploadPath = new File(uploadDir);
-                File avatarFile = new File(uploadPath.getAbsolutePath() + File.separator + fileName);
-                image.transferTo(avatarFile);
-                user.setImage(fileName);*/
-                //userRepository.save(user);
                 logger.info(fileName);
             }
         } catch (IOException e) {

@@ -33,7 +33,7 @@ public class UserController {
     }
 
     @PatchMapping("/me")
-    public ResponseEntity<UserDto> updateUser(UserDto userDto){
+    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto userDto){
         return ResponseEntity.ok(userService.updateUser(userDto));
     }
 
