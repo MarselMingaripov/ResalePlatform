@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -22,6 +23,8 @@ public class Ads {
     private String image;
     @ManyToOne
     private User adsAuthor;
+    @OneToMany
+    private List<Comment> comments;
 
     public Ads(String description, int price, String title, String image) {
         this.description = description;

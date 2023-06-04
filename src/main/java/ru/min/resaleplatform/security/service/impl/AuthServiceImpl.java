@@ -57,7 +57,7 @@ public class AuthServiceImpl implements AuthService {
             throw new BadCredentialsException("Неверно указан пароль!");
         }
         logger.info(String.valueOf(SecurityContextHolder.getContext().getAuthentication().isAuthenticated()));
-        logger.info(String.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()));
+        logger.info(String.valueOf(SecurityContextHolder.getContext().getAuthentication().getAuthorities()));
         return true;
     }
 
@@ -73,7 +73,8 @@ public class AuthServiceImpl implements AuthService {
 
         User user = new User(registerReq.getUsername(), encoder.encode(registerReq.getPassword()), registerReq.getFirstName(),
                 registerReq.getLastName(), registerReq.getPhone(), role);
-        logger.info("user registered");
+        logger.info(user.getRole().getAuthority());
+        logger.info(user.getRole().name());
         userRepository.save(user);
         return true;
     }

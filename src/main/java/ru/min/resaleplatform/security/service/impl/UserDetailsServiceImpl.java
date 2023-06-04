@@ -1,7 +1,6 @@
 package ru.min.resaleplatform.security.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +14,7 @@ import ru.min.resaleplatform.repository.UserRepository;
 
 @Transactional
 @Service
+@RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService, UserDetailsPasswordService {
     /*private final UserRepository userRepository;
 
@@ -29,15 +29,9 @@ public class UserDetailsServiceImpl implements UserDetailsService, UserDetailsPa
 
     private final UserRepository userRepository;
 
-    @Autowired
-    public UserDetailsServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = getUserByUsername(username);
-
         return new MyUserDetails(user);
     }
 

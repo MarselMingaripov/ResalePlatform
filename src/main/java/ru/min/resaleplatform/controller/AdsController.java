@@ -11,11 +11,11 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.min.resaleplatform.model.dto.AdsDto;
 import ru.min.resaleplatform.model.dto.AdsPropertiesDto;
 import ru.min.resaleplatform.model.dto.FullAdsDto;
-import ru.min.resaleplatform.model.dto.ResponseWrapperComment;
+import ru.min.resaleplatform.model.dto.ResponseWrapperAds;
 import ru.min.resaleplatform.service.AdsService;
 
 import javax.validation.Valid;
-import java.util.List;
+import java.io.IOException;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -34,17 +34,35 @@ public class AdsController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ResponseWrapperComment> getCurrentUserAds(){
+    public ResponseEntity<ResponseWrapperAds> getCurrentUserAds(){
         return ResponseEntity.ok(adsService.getMyAdsInStrangeForm());
     }
 
     @GetMapping()
-    public ResponseEntity<ResponseWrapperComment> getAllAds(){
+    public ResponseEntity<ResponseWrapperAds> getAllAds(){
         return ResponseEntity.ok(adsService.getAllAds());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<FullAdsDto> getAdsById(@PathVariable int id){
         return ResponseEntity.ok(adsService.findAdsById(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAdsById(@PathVariable int id){
+        adsService.deleteAdsById(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<AdsDto> updateAds(@RequestParam int id,
+                                            @RequestBody AdsPropertiesDto adsPropertiesDto){
+        return ResponseEntity.ok(adsService.updateAds(id, adsPropertiesDto));
+    }
+
+    @PatchMapping("/{id}/image")
+    public ResponseEntity<byte[]> updateAdsImage(@PathVariable int id,
+                                                 @RequestParam(value = "image") MultipartFile multipartFile) throws IOException {
+        return ResponseEntity.ok(adsService.updateImage(id, multipartFile));
     }
 }

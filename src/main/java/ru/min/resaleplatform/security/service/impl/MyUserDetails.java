@@ -1,11 +1,8 @@
 package ru.min.resaleplatform.security.service.impl;
-
-import lombok.Data;
 import ru.min.resaleplatform.model.User;
 
 import java.util.List;
 
-@Data
 public class MyUserDetails extends org.springframework.security.core.userdetails.User {
 
     private final int id;
@@ -17,5 +14,9 @@ public class MyUserDetails extends org.springframework.security.core.userdetails
 
     @Override
     public void eraseCredentials() {
+    }
+
+    public int getId() {
+        return id;
     }
 }

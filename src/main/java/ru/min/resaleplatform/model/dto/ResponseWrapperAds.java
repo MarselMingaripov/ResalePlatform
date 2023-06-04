@@ -9,8 +9,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseWrapperComment {
+public class ResponseWrapperAds {
 
     private int count;
-    private List<CommentDto> results;
+    private List<AdsDto> results;
 }

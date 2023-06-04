@@ -18,9 +18,16 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String text;
-    private LocalDateTime createdAt;
+    private String createdAt;
     @ManyToOne
     private User commentAuthor;
     @ManyToOne
     private Ads ads;
+
+    public Comment(String text, String createdAt, User commentAuthor, Ads ads) {
+        this.text = text;
+        this.createdAt = createdAt;
+        this.commentAuthor = commentAuthor;
+        this.ads = ads;
+    }
 }

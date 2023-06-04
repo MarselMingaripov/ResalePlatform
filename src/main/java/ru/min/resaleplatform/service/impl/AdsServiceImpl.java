@@ -7,12 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.webjars.NotFoundException;
 import ru.min.resaleplatform.model.Ads;
 import ru.min.resaleplatform.model.User;
 import ru.min.resaleplatform.model.dto.AdsDto;
 import ru.min.resaleplatform.model.dto.AdsPropertiesDto;
 import ru.min.resaleplatform.model.dto.FullAdsDto;
-import ru.min.resaleplatform.model.dto.ResponseWrapperComment;
+import ru.min.resaleplatform.model.dto.ResponseWrapperAds;
 import ru.min.resaleplatform.repository.AdsRepository;
 import ru.min.resaleplatform.service.AdsService;
 import ru.min.resaleplatform.service.UserService;
@@ -70,19 +71,19 @@ public class AdsServiceImpl implements AdsService {
     }
 
     @Override
-    public ResponseWrapperComment getMyAdsInStrangeForm(){
+    public ResponseWrapperAds getMyAdsInStrangeForm(){
         List<AdsDto> adsDtos = getCurrentUserAds();
-        return new ResponseWrapperComment(adsDtos.size(), adsDtos);
+        return new ResponseWrapperAds(adsDtos.size(), adsDtos);
     }
 
     @Override
-    public ResponseWrapperComment getAllAds(){
+    public ResponseWrapperAds getAllAds(){
         List<AdsDto> adsDtos = new ArrayList<>();
         List<Ads> ads = adsRepository.findAll();
         for (Ads ad : ads) {
             adsDtos.add(new AdsDto(ad.getAdsAuthor().getId(), ad.getImage(), ad.getId(), ad.getPrice(), ad.getTitle()));
         }
-        return new ResponseWrapperComment(adsDtos.size(), adsDtos);
+        return new ResponseWrapperAds(adsDtos.size(), adsDtos);
     }
 
     @Override
@@ -97,5 +98,50 @@ public class AdsServiceImpl implements AdsService {
                 ads.getAdsAuthor().getPhone(),
                 ads.getPrice(),
                 ads.getTitle());
+    }
+
+    @Override
+    public void deleteAdsById(int id){
+        if (adsRepository.existsById(id)) {
+            adsRepository.deleteById(id);
+        } else {
+            throw new NotFoundException("Ads not found");
+        }
+    }
+
+    @Override
+    public AdsDto updateAds(int id, AdsPropertiesDto adsPropertiesDto){
+        User user = userService.getCurrentUser();
+        Ads ads = adsRepository.findById(id).orElseThrow(() -> new NotFoundException("Ads not found"));
+        if (user.getRole().getAuthority().equals("ADMIN") || ads.getAdsAuthor().getEmail().equals(user.getEmail())){
+            ads.setTitle(adsPropertiesDto.getTitle());
+            ads.setPrice(adsPropertiesDto.getPrice());
+            ads.setDescription(adsPropertiesDto.getDescription());
+            adsRepository.save(ads);
+        }
+        return new AdsDto(user.getId(), ads.getImage(), ads.getId(), ads.getPrice(), ads.getTitle());
+    }
+
+    @Override
+    public byte[] updateImage(int id, MultipartFile image) throws IOException {
+        User user = userService.getCurrentUser();
+        if (adsRepository.existsById(id) && (user.getRole().getAuthority().equals("ADMIN") ||
+                adsRepository.findById(id).get().getAdsAuthor().getEmail().equals(user.getEmail()))){
+            Ads ads = adsRepository.findById(id).get();
+
+            try{
+                if (!image.isEmpty()){
+                    String fileName = UUID.randomUUID() + "_" +
+                            image.getOriginalFilename();
+                    image.transferTo(new File("C:\\Users\\User\\Documents\\IdeaProjects\\ResalePlatform\\src\\main\\resources\\static\\" + fileName));
+                    ads.setImage("\\static\\" + fileName);
+                    logger.info(image.getContentType());
+                    adsRepository.save(ads);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return image.getBytes();
     }
 }
