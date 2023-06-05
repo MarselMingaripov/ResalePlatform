@@ -12,7 +12,8 @@ import ru.min.resaleplatform.model.dto.NewPasswordDto;
 import ru.min.resaleplatform.model.dto.UserDto;
 import ru.min.resaleplatform.service.UserService;
 
-@CrossOrigin(value = "http://localhost:3000")
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -38,7 +39,7 @@ public class UserController {
     }
 
     @PatchMapping("/me/image")
-    public ResponseEntity<Void> updateImage(@RequestParam(value = "image") MultipartFile multipartFile){
+    public ResponseEntity<Void> updateImage(@RequestParam(value = "image") MultipartFile multipartFile) throws IOException {
         userService.updateImage(multipartFile);
         return ResponseEntity.ok().build();
     }

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.webjars.NotFoundException;
@@ -32,8 +33,10 @@ public class AdsServiceImpl implements AdsService {
     private final AdsRepository adsRepository;
     private final ModelMapper mapper;
     private final UserService userService;
+    @Value("${image.upload.path}")
+    private String imageUploadPath;
 
-    Logger logger = LoggerFactory.getLogger(AdsServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(AdsServiceImpl.class);
 
     @Override
     public AdsDto createAds(AdsPropertiesDto adsPropertiesDto, MultipartFile image){
@@ -41,11 +44,7 @@ public class AdsServiceImpl implements AdsService {
 
         try{
             if (!image.isEmpty()){
-                String fileName = UUID.randomUUID() + "_" +
-                        image.getOriginalFilename();
-                image.transferTo(new File("C:\\Users\\User\\Documents\\IdeaProjects\\ResalePlatform\\src\\main\\resources\\static\\" + fileName));
-                ads.setImage("\\static\\" + fileName);
-                //adsRepository.save(ads);
+                adsImageEdit(image, ads);
                 logger.info(image.getContentType());
             }
         } catch (IOException e) {
@@ -131,17 +130,22 @@ public class AdsServiceImpl implements AdsService {
 
             try{
                 if (!image.isEmpty()){
-                    String fileName = UUID.randomUUID() + "_" +
-                            image.getOriginalFilename();
-                    image.transferTo(new File("C:\\Users\\User\\Documents\\IdeaProjects\\ResalePlatform\\src\\main\\resources\\static\\" + fileName));
-                    ads.setImage("\\static\\" + fileName);
-                    logger.info(image.getContentType());
+                    adsImageEdit(image, ads);
                     adsRepository.save(ads);
+                    logger.info(image.getContentType());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         return image.getBytes();
+    }
+
+    private void adsImageEdit(MultipartFile image, Ads ads) throws IOException {
+        UserServiceImpl.createDir(imageUploadPath, logger);
+        String fileName = UUID.randomUUID() + "_" +
+                image.getOriginalFilename();
+        image.transferTo(new File(imageUploadPath + fileName));
+        ads.setImage("\\static\\" + fileName);
     }
 }

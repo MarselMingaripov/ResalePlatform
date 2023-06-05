@@ -1,4 +1,4 @@
-package ru.min.resaleplatform.security.service.impl;
+package ru.min.resaleplatform.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -89,6 +89,7 @@ public class CommentServiceImpl implements CommentService {
                     comment.setText(commentDto.getText());
                     comment.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern(FORMATTER)));
                     commentRepository.save(comment);
+                    //adsRepository.save(ads);
                     commentDtoForFront.setAuthor(comment.getCommentAuthor().getId());
                     commentDtoForFront.setAuthorImage(comment.getCommentAuthor().getImage());
                     commentDtoForFront.setAuthorFirstName(comment.getCommentAuthor().getFirstName());

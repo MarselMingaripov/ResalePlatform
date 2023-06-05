@@ -5,25 +5,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.min.resaleplatform.model.User;
 import ru.min.resaleplatform.model.dto.NewPasswordDto;
 import ru.min.resaleplatform.model.dto.UserDto;
 import ru.min.resaleplatform.repository.UserRepository;
-import ru.min.resaleplatform.security.dto.Role;
 import ru.min.resaleplatform.service.UserService;
 import ru.min.resaleplatform.service.ValidationService;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,12 +31,15 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    @Value("${image.upload.path}")
+    private String imageUploadPath;
+
     private final UserRepository userRepository;
     private final ValidationService validationService;
     private final PasswordEncoder encoder;
     private final ModelMapper modelMapper;
 
-    Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Override
     public User createUser(User user) {
@@ -56,16 +58,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updatePassword(NewPasswordDto newPasswordDto){
+    public void updatePassword(NewPasswordDto newPasswordDto) {
         logger.info(SecurityContextHolder.getContext().getAuthentication().getName());
         User user = userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).get();
-        if (encoder.matches(newPasswordDto.getCurrentPassword(), user.getPassword())){
+        if (encoder.matches(newPasswordDto.getCurrentPassword(), user.getPassword())) {
             user.setPassword(encoder.encode(newPasswordDto.getNewPassword()));
             logger.info(userRepository.findByEmail(SecurityContextHolder
                             .getContext()
                             .getAuthentication()
                             .getName()).get()
-                            .getPassword());
+                    .getPassword());
             userRepository.save(user);
         } else {
             throw new BadCredentialsException("Incorrect password");
@@ -73,7 +75,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUser(UserDto userDto){
+    public UserDto updateUser(UserDto userDto) {
         User user = getCurrentUser();
         //user.setId(userDto.getId());
         //user.setEmail(userDto.getEmail());
@@ -97,26 +99,39 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateImage(MultipartFile image) {
-        User user = getCurrentUser();
-        try{
-            if (image.getContentType().startsWith("image/")){
-                String fileName = user.getFirstName() + "_" +
-                        image.getOriginalFilename();
+    public void updateImage(MultipartFile image) throws IOException {
 
-                image.transferTo(new File("C:\\Users\\User\\Documents\\IdeaProjects\\ResalePlatform\\src\\main\\resources\\static\\" + fileName));
-                user.setImage("\\static\\" + fileName);
-                userRepository.save(user);
-                logger.info(image.getContentType());
-                logger.info(fileName);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        User user = getCurrentUser();
+        createDir(imageUploadPath, logger);
+        if (image.getContentType().startsWith("image/")) {
+            String fileName = UUID.randomUUID() + "_" +
+                    image.getOriginalFilename();
+            image.transferTo(new File(imageUploadPath + fileName));
+            user.setImage("\\static\\" + fileName);
+            userRepository.save(user);
+            logger.info(image.getContentType());
+            logger.info(fileName);
         }
     }
 
+    static void createDir(String imageUploadPath, Logger logger) {
+        Path path = Paths.get(imageUploadPath);
+
+        if (!Files.exists(path)) {
+            try {
+                Files.createDirectories(path);
+                logger.info("Путь успешно создан: " + path);
+            } catch (IOException e) {
+                logger.error("Не удалось создать путь: " + e.getMessage());
+            }
+        } else {
+            logger.info("Путь уже существует: " + path);
+        }
+    }
+
+
     @Override
-    public User getCurrentUser(){
+    public User getCurrentUser() {
         return userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).get();
     }
 }

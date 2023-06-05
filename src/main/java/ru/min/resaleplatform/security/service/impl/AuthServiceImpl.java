@@ -33,7 +33,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder encoder;
     private final UserDetailsService userDetailsService;
 
-    Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     @Override
     public boolean login(String userName, String password) {
