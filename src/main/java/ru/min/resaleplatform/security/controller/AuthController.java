@@ -1,4 +1,4 @@
-package ru.min.resaleplatform.controller;
+package ru.min.resaleplatform.security.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import ru.min.resaleplatform.dto.LoginReq;
-import ru.min.resaleplatform.dto.RegisterReq;
-import ru.min.resaleplatform.dto.Role;
-import ru.min.resaleplatform.service.AuthService;
+import ru.min.resaleplatform.security.dto.LoginReq;
+import ru.min.resaleplatform.security.dto.RegisterReq;
+import ru.min.resaleplatform.security.dto.Role;
+import ru.min.resaleplatform.security.service.AuthService;
 
-import static ru.min.resaleplatform.dto.Role.USER;
+import static ru.min.resaleplatform.security.dto.Role.USER;
 
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
