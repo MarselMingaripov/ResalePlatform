@@ -18,6 +18,9 @@ import ru.min.resaleplatform.model.dto.ResponseWrapperAds;
 import ru.min.resaleplatform.repository.AdsRepository;
 import ru.min.resaleplatform.service.AdsService;
 import ru.min.resaleplatform.service.UserService;
+import ru.min.resaleplatform.service.impl.mapping.AdsToAdsDtoMapService;
+import ru.min.resaleplatform.service.impl.mapping.AdsToAdsPropertiesDtoMapService;
+import ru.min.resaleplatform.service.impl.mapping.AdsToFullAdsDto;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +43,9 @@ public class AdsServiceImpl implements AdsService {
 
     @Override
     public AdsDto createAds(AdsPropertiesDto adsPropertiesDto, MultipartFile image){
-        Ads ads = new Ads(adsPropertiesDto.getDescription(), adsPropertiesDto.getPrice(), adsPropertiesDto.getTitle());
+        mapper.addMappings(new AdsToAdsPropertiesDtoMapService());
+        mapper.addMappings(new AdsToAdsDtoMapService());
+        Ads ads = mapper.map(adsPropertiesDto, Ads.class);
 
         try{
             if (!image.isEmpty()){
@@ -54,17 +59,22 @@ public class AdsServiceImpl implements AdsService {
         User user = userService.getCurrentUser();
         ads.setAdsAuthor(user);
         adsRepository.save(ads);
-        AdsDto adsDto = new AdsDto(user.getId(), ads.getImage(), ads.getId(), ads.getPrice(), ads.getTitle());
+        // adsDto = new AdsDto(user.getId(), ads.getImage(), ads.getId(), ads.getPrice(), ads.getTitle());
+        AdsDto adsDto = mapper.map(ads, AdsDto.class);
         return adsDto;
     }
 
+
+
     @Override
     public List<AdsDto> getCurrentUserAds(){
+        mapper.addMappings(new AdsToAdsDtoMapService());
         User user = userService.getCurrentUser();
         List<Ads> myAds = adsRepository.findByAdsAuthor_Email(user.getEmail());
         List<AdsDto> adsDtos = new ArrayList<>();
         for (Ads myAd : myAds) {
-            adsDtos.add(new AdsDto(myAd.getAdsAuthor().getId(), myAd.getImage(), myAd.getId(), myAd.getPrice(), myAd.getTitle()));
+            //adsDtos.add(new AdsDto(myAd.getAdsAuthor().getId(), myAd.getImage(), myAd.getId(), myAd.getPrice(), myAd.getTitle()));
+            adsDtos.add(mapper.map(myAd, AdsDto.class));
         }
         return adsDtos;
     }
@@ -77,18 +87,21 @@ public class AdsServiceImpl implements AdsService {
 
     @Override
     public ResponseWrapperAds getAllAds(){
+        mapper.addMappings(new AdsToAdsDtoMapService());
         List<AdsDto> adsDtos = new ArrayList<>();
         List<Ads> ads = adsRepository.findAll();
         for (Ads ad : ads) {
-            adsDtos.add(new AdsDto(ad.getAdsAuthor().getId(), ad.getImage(), ad.getId(), ad.getPrice(), ad.getTitle()));
+            //adsDtos.add(new AdsDto(ad.getAdsAuthor().getId(), ad.getImage(), ad.getId(), ad.getPrice(), ad.getTitle()));
+            adsDtos.add(mapper.map(ad, AdsDto.class));
         }
         return new ResponseWrapperAds(adsDtos.size(), adsDtos);
     }
 
     @Override
     public FullAdsDto findAdsById(int id){
+        mapper.addMappings(new AdsToFullAdsDto());
         Ads ads = adsRepository.findById(id).orElseThrow();
-        return new FullAdsDto(ads.getId(),
+        /*return new FullAdsDto(ads.getId(),
                 ads.getAdsAuthor().getFirstName(),
                 ads.getAdsAuthor().getLastName(),
                 ads.getDescription(),
@@ -96,7 +109,8 @@ public class AdsServiceImpl implements AdsService {
                 ads.getImage(),
                 ads.getAdsAuthor().getPhone(),
                 ads.getPrice(),
-                ads.getTitle());
+                ads.getTitle());*/
+        return mapper.map(ads, FullAdsDto.class);
     }
 
     @Override

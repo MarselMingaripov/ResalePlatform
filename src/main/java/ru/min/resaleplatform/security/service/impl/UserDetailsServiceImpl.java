@@ -1,6 +1,9 @@
 package ru.min.resaleplatform.security.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +18,7 @@ import ru.min.resaleplatform.repository.UserRepository;
 @Transactional
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserDetailsServiceImpl implements UserDetailsService, UserDetailsPasswordService {
     /*private final UserRepository userRepository;
 
@@ -28,10 +32,12 @@ public class UserDetailsServiceImpl implements UserDetailsService, UserDetailsPa
     }*/
 
     private final UserRepository userRepository;
+    private final Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = getUserByUsername(username);
+
         return new MyUserDetails(user);
     }
 
