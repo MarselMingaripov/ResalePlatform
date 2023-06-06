@@ -18,10 +18,7 @@ import ru.min.resaleplatform.model.dto.ResponseWrapperAds;
 import ru.min.resaleplatform.repository.AdsRepository;
 import ru.min.resaleplatform.service.AdsService;
 import ru.min.resaleplatform.service.UserService;
-import ru.min.resaleplatform.service.impl.mapping.AdsToAdsDtoMapService;
-import ru.min.resaleplatform.service.impl.mapping.AdsToAdsPropertiesDtoMapService;
-import ru.min.resaleplatform.service.impl.mapping.AdsToFullAdsDtoMapService;
-import ru.min.resaleplatform.service.impl.mapping.CommentToCommentDtoMapService;
+import ru.min.resaleplatform.service.impl.mapping.*;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -49,6 +46,7 @@ public class AdsServiceImpl implements AdsService {
         mapper.addMappings(new AdsToAdsDtoMapService());
         mapper.addMappings(new AdsToFullAdsDtoMapService());
         mapper.addMappings(new CommentToCommentDtoMapService());
+        mapper.addMappings(new UserDtoToUserMapService());
     }
 
     @Override
