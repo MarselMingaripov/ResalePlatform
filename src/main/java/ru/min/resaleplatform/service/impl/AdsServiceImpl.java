@@ -20,8 +20,10 @@ import ru.min.resaleplatform.service.AdsService;
 import ru.min.resaleplatform.service.UserService;
 import ru.min.resaleplatform.service.impl.mapping.AdsToAdsDtoMapService;
 import ru.min.resaleplatform.service.impl.mapping.AdsToAdsPropertiesDtoMapService;
-import ru.min.resaleplatform.service.impl.mapping.AdsToFullAdsDto;
+import ru.min.resaleplatform.service.impl.mapping.AdsToFullAdsDtoMapService;
+import ru.min.resaleplatform.service.impl.mapping.CommentToCommentDtoMapService;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,10 +43,16 @@ public class AdsServiceImpl implements AdsService {
 
     private final Logger logger = LoggerFactory.getLogger(AdsServiceImpl.class);
 
-    @Override
-    public AdsDto createAds(AdsPropertiesDto adsPropertiesDto, MultipartFile image){
+    @PostConstruct
+    private void initMapper(){
         mapper.addMappings(new AdsToAdsPropertiesDtoMapService());
         mapper.addMappings(new AdsToAdsDtoMapService());
+        mapper.addMappings(new AdsToFullAdsDtoMapService());
+        mapper.addMappings(new CommentToCommentDtoMapService());
+    }
+
+    @Override
+    public AdsDto createAds(AdsPropertiesDto adsPropertiesDto, MultipartFile image){
         Ads ads = mapper.map(adsPropertiesDto, Ads.class);
 
         try{
@@ -68,7 +76,6 @@ public class AdsServiceImpl implements AdsService {
 
     @Override
     public List<AdsDto> getCurrentUserAds(){
-        mapper.addMappings(new AdsToAdsDtoMapService());
         User user = userService.getCurrentUser();
         List<Ads> myAds = adsRepository.findByAdsAuthor_Email(user.getEmail());
         List<AdsDto> adsDtos = new ArrayList<>();
@@ -87,7 +94,6 @@ public class AdsServiceImpl implements AdsService {
 
     @Override
     public ResponseWrapperAds getAllAds(){
-        mapper.addMappings(new AdsToAdsDtoMapService());
         List<AdsDto> adsDtos = new ArrayList<>();
         List<Ads> ads = adsRepository.findAll();
         for (Ads ad : ads) {
@@ -99,7 +105,7 @@ public class AdsServiceImpl implements AdsService {
 
     @Override
     public FullAdsDto findAdsById(int id){
-        mapper.addMappings(new AdsToFullAdsDto());
+        //mapper.addMappings(new AdsToFullAdsDtoMapService());
         Ads ads = adsRepository.findById(id).orElseThrow();
         /*return new FullAdsDto(ads.getId(),
                 ads.getAdsAuthor().getFirstName(),

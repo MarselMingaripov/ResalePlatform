@@ -1,6 +1,7 @@
 package ru.min.resaleplatform.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import ru.min.resaleplatform.model.Ads;
 import ru.min.resaleplatform.model.Comment;
@@ -10,6 +11,7 @@ import ru.min.resaleplatform.repository.AdsRepository;
 import ru.min.resaleplatform.repository.CommentRepository;
 import ru.min.resaleplatform.service.CommentService;
 import ru.min.resaleplatform.service.UserService;
+import ru.min.resaleplatform.service.impl.mapping.CommentToCommentDtoMapService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -25,6 +27,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final AdsRepository adsRepository;
     private final UserService userService;
+    private final ModelMapper mapper;
 
     @Override
     public ResponseWrapperComment getAllComments(int id){
@@ -56,12 +59,13 @@ public class CommentServiceImpl implements CommentService {
             commentRepository.save(comment);
             ads.getComments().add(comment);
             adsRepository.save(ads);
-            commentDto.setAuthor(user.getId());
+            /*commentDto.setAuthor(user.getId());
             commentDto.setAuthorImage(user.getImage());
             commentDto.setAuthorFirstName(user.getFirstName());
             commentDto.setCreatedAt(comment.getCreatedAt());
             commentDto.setPk(comment.getId());
-            commentDto.setText(text.getText());
+            commentDto.setText(text.getText());*/
+            commentDto = mapper.map(comment, CommentDto.class);
         }
         return commentDto;
     }
@@ -81,6 +85,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto updateComment(int adId, int commentId, CommentDto commentDto){
+        //mapper.addMappings(new CommentToCommentDtoMapService());
         CommentDto commentDtoForFront = new CommentDto();
         if (adsRepository.existsById(adId) && commentRepository.existsById(commentId)){
             Ads ads = adsRepository.findById(adId).get();
@@ -89,13 +94,13 @@ public class CommentServiceImpl implements CommentService {
                     comment.setText(commentDto.getText());
                     comment.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern(FORMATTER)));
                     commentRepository.save(comment);
-                    //adsRepository.save(ads);
-                    commentDtoForFront.setAuthor(comment.getCommentAuthor().getId());
+                    /*commentDtoForFront.setAuthor(comment.getCommentAuthor().getId());
                     commentDtoForFront.setAuthorImage(comment.getCommentAuthor().getImage());
                     commentDtoForFront.setAuthorFirstName(comment.getCommentAuthor().getFirstName());
                     commentDtoForFront.setCreatedAt(comment.getCreatedAt());
                     commentDtoForFront.setPk(commentId);
-                    comment.setText(comment.getText());
+                    comment.setText(comment.getText());*/
+                    commentDtoForFront = mapper.map(comment, CommentDto.class);
                 }
             }
         }

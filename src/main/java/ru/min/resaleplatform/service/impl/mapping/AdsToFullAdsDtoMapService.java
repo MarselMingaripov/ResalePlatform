@@ -4,7 +4,7 @@ import org.modelmapper.PropertyMap;
 import ru.min.resaleplatform.model.Ads;
 import ru.min.resaleplatform.model.dto.FullAdsDto;
 
-public class AdsToFullAdsDto extends PropertyMap<Ads, FullAdsDto> {
+public class AdsToFullAdsDtoMapService extends PropertyMap<Ads, FullAdsDto> {
     @Override
     protected void configure() {
         map().setPk(source.getId());
