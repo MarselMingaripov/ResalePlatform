@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.webjars.NotFoundException;
@@ -17,7 +18,9 @@ import ru.min.resaleplatform.model.dto.ResponseWrapperAds;
 import ru.min.resaleplatform.repository.AdsRepository;
 import ru.min.resaleplatform.service.AdsService;
 import ru.min.resaleplatform.service.UserService;
+import ru.min.resaleplatform.service.impl.mapping.*;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,20 +35,27 @@ public class AdsServiceImpl implements AdsService {
     private final AdsRepository adsRepository;
     private final ModelMapper mapper;
     private final UserService userService;
+    @Value("${image.upload.path}")
+    private String imageUploadPath;
 
-    Logger logger = LoggerFactory.getLogger(AdsServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(AdsServiceImpl.class);
+
+    @PostConstruct
+    private void initMapper(){
+        mapper.addMappings(new AdsToAdsPropertiesDtoMapService());
+        mapper.addMappings(new AdsToAdsDtoMapService());
+        mapper.addMappings(new AdsToFullAdsDtoMapService());
+        mapper.addMappings(new CommentToCommentDtoMapService());
+        mapper.addMappings(new UserDtoToUserMapService());
+    }
 
     @Override
     public AdsDto createAds(AdsPropertiesDto adsPropertiesDto, MultipartFile image){
-        Ads ads = new Ads(adsPropertiesDto.getDescription(), adsPropertiesDto.getPrice(), adsPropertiesDto.getTitle());
+        Ads ads = mapper.map(adsPropertiesDto, Ads.class);
 
         try{
             if (!image.isEmpty()){
-                String fileName = UUID.randomUUID() + "_" +
-                        image.getOriginalFilename();
-                image.transferTo(new File("C:\\Users\\User\\Documents\\IdeaProjects\\ResalePlatform\\src\\main\\resources\\static\\" + fileName));
-                ads.setImage("\\static\\" + fileName);
-                //adsRepository.save(ads);
+                adsImageEdit(image, ads);
                 logger.info(image.getContentType());
             }
         } catch (IOException e) {
@@ -55,9 +65,12 @@ public class AdsServiceImpl implements AdsService {
         User user = userService.getCurrentUser();
         ads.setAdsAuthor(user);
         adsRepository.save(ads);
-        AdsDto adsDto = new AdsDto(user.getId(), ads.getImage(), ads.getId(), ads.getPrice(), ads.getTitle());
+        // adsDto = new AdsDto(user.getId(), ads.getImage(), ads.getId(), ads.getPrice(), ads.getTitle());
+        AdsDto adsDto = mapper.map(ads, AdsDto.class);
         return adsDto;
     }
+
+
 
     @Override
     public List<AdsDto> getCurrentUserAds(){
@@ -65,7 +78,8 @@ public class AdsServiceImpl implements AdsService {
         List<Ads> myAds = adsRepository.findByAdsAuthor_Email(user.getEmail());
         List<AdsDto> adsDtos = new ArrayList<>();
         for (Ads myAd : myAds) {
-            adsDtos.add(new AdsDto(myAd.getAdsAuthor().getId(), myAd.getImage(), myAd.getId(), myAd.getPrice(), myAd.getTitle()));
+            //adsDtos.add(new AdsDto(myAd.getAdsAuthor().getId(), myAd.getImage(), myAd.getId(), myAd.getPrice(), myAd.getTitle()));
+            adsDtos.add(mapper.map(myAd, AdsDto.class));
         }
         return adsDtos;
     }
@@ -81,15 +95,17 @@ public class AdsServiceImpl implements AdsService {
         List<AdsDto> adsDtos = new ArrayList<>();
         List<Ads> ads = adsRepository.findAll();
         for (Ads ad : ads) {
-            adsDtos.add(new AdsDto(ad.getAdsAuthor().getId(), ad.getImage(), ad.getId(), ad.getPrice(), ad.getTitle()));
+            //adsDtos.add(new AdsDto(ad.getAdsAuthor().getId(), ad.getImage(), ad.getId(), ad.getPrice(), ad.getTitle()));
+            adsDtos.add(mapper.map(ad, AdsDto.class));
         }
         return new ResponseWrapperAds(adsDtos.size(), adsDtos);
     }
 
     @Override
     public FullAdsDto findAdsById(int id){
+        //mapper.addMappings(new AdsToFullAdsDtoMapService());
         Ads ads = adsRepository.findById(id).orElseThrow();
-        return new FullAdsDto(ads.getId(),
+        /*return new FullAdsDto(ads.getId(),
                 ads.getAdsAuthor().getFirstName(),
                 ads.getAdsAuthor().getLastName(),
                 ads.getDescription(),
@@ -97,7 +113,8 @@ public class AdsServiceImpl implements AdsService {
                 ads.getImage(),
                 ads.getAdsAuthor().getPhone(),
                 ads.getPrice(),
-                ads.getTitle());
+                ads.getTitle());*/
+        return mapper.map(ads, FullAdsDto.class);
     }
 
     @Override
@@ -131,17 +148,22 @@ public class AdsServiceImpl implements AdsService {
 
             try{
                 if (!image.isEmpty()){
-                    String fileName = UUID.randomUUID() + "_" +
-                            image.getOriginalFilename();
-                    image.transferTo(new File("C:\\Users\\User\\Documents\\IdeaProjects\\ResalePlatform\\src\\main\\resources\\static\\" + fileName));
-                    ads.setImage("\\static\\" + fileName);
-                    logger.info(image.getContentType());
+                    adsImageEdit(image, ads);
                     adsRepository.save(ads);
+                    logger.info(image.getContentType());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         return image.getBytes();
+    }
+
+    private void adsImageEdit(MultipartFile image, Ads ads) throws IOException {
+        UserServiceImpl.createDir(imageUploadPath, logger);
+        String fileName = UUID.randomUUID() + "_" +
+                image.getOriginalFilename();
+        image.transferTo(new File(imageUploadPath + fileName));
+        ads.setImage("\\static\\" + fileName);
     }
 }

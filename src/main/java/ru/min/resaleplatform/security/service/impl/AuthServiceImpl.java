@@ -19,6 +19,7 @@ import ru.min.resaleplatform.repository.UserRepository;
 import ru.min.resaleplatform.security.dto.RegisterReq;
 import ru.min.resaleplatform.security.dto.Role;
 import ru.min.resaleplatform.security.service.AuthService;
+import ru.min.resaleplatform.service.UserService;
 import ru.min.resaleplatform.service.impl.UserServiceImpl;
 
 import javax.validation.ValidationException;
@@ -32,8 +33,9 @@ public class AuthServiceImpl implements AuthService {
     //private final AuthenticationManager authenticationManager;
     private final PasswordEncoder encoder;
     private final UserDetailsService userDetailsService;
+    private final UserService userService;
 
-    Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     @Override
     public boolean login(String userName, String password) {

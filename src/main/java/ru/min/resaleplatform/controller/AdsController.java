@@ -17,7 +17,6 @@ import ru.min.resaleplatform.service.AdsService;
 import javax.validation.Valid;
 import java.io.IOException;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/ads")
@@ -25,7 +24,7 @@ public class AdsController {
 
     private final AdsService adsService;
 
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<AdsDto> createAds(@Parameter(in = ParameterIn.DEFAULT, description = "Данные нового объявления",
             required = true, schema = @Schema())
                                                 @RequestPart("image") MultipartFile multipartFile,
