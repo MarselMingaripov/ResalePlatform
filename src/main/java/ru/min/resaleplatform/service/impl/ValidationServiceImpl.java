@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 @Service
 public class ValidationServiceImpl implements ValidationService {
     private static final Pattern PATTERN_PHONE_NUMBER = Pattern.compile("(^(\\+7)(\\d{10}))$");
-    private static final Pattern PATTERN_EMAIL = Pattern.compile("\\\\w+([\\\\.-]?\\\\w+)*@\\\\w+([\\\\.-]?\\\\w+)*\\\\.\\\\w{2,4}");
+    private static final Pattern PATTERN_EMAIL = Pattern.compile("^(.+)@(\\\\S+)$");
 
     @Override
     public boolean validateEmail(String email) {
