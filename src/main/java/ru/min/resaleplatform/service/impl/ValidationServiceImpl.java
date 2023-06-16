@@ -32,11 +32,11 @@ public class ValidationServiceImpl implements ValidationService {
     @Override
     public boolean validate(User user) {
 //        return true;
-        return user != null
-                && validateEmail(user.getEmail())
-                && validateString(user.getPassword())
-                && validateString(user.getFirstName())
-                && validateString(user.getLastName())
-                && validatePhoneNumber(user.getPhone());
+        return user != null;
+//                && validateEmail(user.getEmail())
+//                && validateString(user.getPassword())
+//                && validateString(user.getFirstName())
+//                && validateString(user.getLastName())
+//                && validatePhoneNumber(user.getPhone());
     }
 }
