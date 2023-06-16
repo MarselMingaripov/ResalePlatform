@@ -16,23 +16,27 @@ class ValidationServiceTest {
     private static String PHONE_NUMBER = "+79053930303";
     private static String IMAGE = "Avatar";
 
-    private static User USER1 = new User(
+
+    private static User USER = new User(
             "user@gmail.com",
             "1234567",
             "Sergey",
             "Sergeev",
-            "+79053093099"
+            "+79053093099",
+            "avatarka"
+
     );
     @Test
     void returnTrueWhenUserIsCorrect() {
-        assertTrue(out.validate(new User(
-                EMAIL,
-                PASSWORD,
-                FIRST_NAME,
-                LAST_NAME,
-                PHONE_NUMBER,
-                IMAGE
-        )));
+        assertTrue(out.validate(USER
+//                new User(
+//                EMAIL,
+//                PASSWORD,
+//                FIRST_NAME,
+//                LAST_NAME,
+//                PHONE_NUMBER,
+//                IMAGE
+        ));
     }
     @Test
     void returnTrueWhenEmailIsCorrect() {
