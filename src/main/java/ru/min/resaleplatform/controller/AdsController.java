@@ -60,7 +60,7 @@ public class AdsController {
     }
 
     @PatchMapping("/{id}/image")
-    public ResponseEntity<byte[]> updateAdsImage(@PathVariable int id,
+    public ResponseEntity<String> updateAdsImage(@PathVariable int id,
                                                  @RequestParam(value = "image") MultipartFile multipartFile) throws IOException {
         return ResponseEntity.ok(adsService.updateImage(id, multipartFile));
     }

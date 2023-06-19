@@ -59,12 +59,6 @@ public class CommentServiceImpl implements CommentService {
             commentRepository.save(comment);
             ads.getComments().add(comment);
             adsRepository.save(ads);
-            /*commentDto.setAuthor(user.getId());
-            commentDto.setAuthorImage(user.getImage());
-            commentDto.setAuthorFirstName(user.getFirstName());
-            commentDto.setCreatedAt(comment.getCreatedAt());
-            commentDto.setPk(comment.getId());
-            commentDto.setText(text.getText());*/
             commentDto = mapper.map(comment, CommentDto.class);
         }
         return commentDto;
@@ -85,7 +79,6 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto updateComment(int adId, int commentId, CommentDto commentDto){
-        //mapper.addMappings(new CommentToCommentDtoMapService());
         CommentDto commentDtoForFront = new CommentDto();
         if (adsRepository.existsById(adId) && commentRepository.existsById(commentId)){
             Ads ads = adsRepository.findById(adId).get();
@@ -94,12 +87,6 @@ public class CommentServiceImpl implements CommentService {
                     comment.setText(commentDto.getText());
                     comment.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern(FORMATTER)));
                     commentRepository.save(comment);
-                    /*commentDtoForFront.setAuthor(comment.getCommentAuthor().getId());
-                    commentDtoForFront.setAuthorImage(comment.getCommentAuthor().getImage());
-                    commentDtoForFront.setAuthorFirstName(comment.getCommentAuthor().getFirstName());
-                    commentDtoForFront.setCreatedAt(comment.getCreatedAt());
-                    commentDtoForFront.setPk(commentId);
-                    comment.setText(comment.getText());*/
                     commentDtoForFront = mapper.map(comment, CommentDto.class);
                 }
             }

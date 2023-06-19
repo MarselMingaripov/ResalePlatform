@@ -14,9 +14,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import ru.min.resaleplatform.security.service.impl.CustomAuthenticationManager;
 import ru.min.resaleplatform.security.service.impl.CustomAuthenticationProvider;
+
+import javax.sql.DataSource;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -82,7 +85,7 @@ public class WebSecurityConfig {
             "/v3/api-docs",
             "/webjars/**",
             "/login",
-            "/register", "/ads/**"
+            "/register", "/ads"
     };
 
     @Bean
@@ -93,7 +96,6 @@ public class WebSecurityConfig {
                 .csrf().disable()
                 .authorizeHttpRequests((authz) ->
                         authz
-                                .mvcMatchers(HttpMethod.GET, "/ads").permitAll()
                                 .mvcMatchers(HttpMethod.GET, "/ads/images/**").permitAll()
                                 .mvcMatchers(AUTH_WHITELIST).permitAll()
                                 .mvcMatchers("/ads/**", "/users/**").authenticated()
