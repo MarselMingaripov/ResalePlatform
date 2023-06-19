@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.min.resaleplatform.model.User;
 import ru.min.resaleplatform.repository.UserRepository;
 import ru.min.resaleplatform.service.impl.UserServiceImpl;
+import org.modelmapper.ModelMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -22,6 +23,8 @@ class UserServiceTest {
     private UserRepository userRepositoryMock;
     @Mock
     private ValidationService validationServiceMock;
+    @Mock
+    private ModelMapper modelMapper;
 
     @InjectMocks
     private UserServiceImpl userServiceOut;
@@ -47,5 +50,14 @@ class UserServiceTest {
         Mockito.when(userRepositoryMock.save(any())).thenReturn(user);
         assertEquals(user, userServiceOut.createUser(user));
         verify(userRepositoryMock, times(1)).save(any());
+    }
+
+    @Test
+    @DisplayName("Проверка поиска пользователя")
+    public void shouldReturnFindUser() {
+
+        ModelMapper modelMapper = Mockito.mock(ModelMapper.class);
+        Mockito.when(userServiceOut.getCurrentUser()).thenReturn(user);
+        Mockito.when(modelMapper.getCurrentUser().).thenReturn(modelMapper);
     }
 }
