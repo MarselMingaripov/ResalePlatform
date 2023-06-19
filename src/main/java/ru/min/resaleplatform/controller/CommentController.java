@@ -8,7 +8,6 @@ import ru.min.resaleplatform.model.dto.ResponseWrapperComment;
 import ru.min.resaleplatform.model.dto.TextDto;
 import ru.min.resaleplatform.service.CommentService;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/ads")

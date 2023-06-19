@@ -6,6 +6,7 @@ import ru.min.resaleplatform.model.User;
 import ru.min.resaleplatform.model.dto.NewPasswordDto;
 import ru.min.resaleplatform.model.dto.UserDto;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface UserService {
@@ -22,7 +23,7 @@ public interface UserService {
 
     List<User> findAll();
 
-    void updateImage(MultipartFile image);
+    void updateImage(MultipartFile image) throws IOException;
 
     User getCurrentUser();
 }

@@ -16,7 +16,6 @@ import ru.min.resaleplatform.security.service.AuthService;
 import static ru.min.resaleplatform.security.dto.Role.USER;
 
 @Slf4j
-@CrossOrigin(value = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
