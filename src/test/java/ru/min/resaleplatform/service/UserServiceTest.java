@@ -1,5 +1,6 @@
 package ru.min.resaleplatform.service;
 
+import org.assertj.core.api.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,14 +10,15 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.min.resaleplatform.model.User;
+import ru.min.resaleplatform.model.dto.UserDto;
 import ru.min.resaleplatform.repository.UserRepository;
 import ru.min.resaleplatform.service.impl.UserServiceImpl;
 import org.modelmapper.ModelMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
     @Mock
@@ -25,6 +27,8 @@ class UserServiceTest {
     private ValidationService validationServiceMock;
     @Mock
     private ModelMapper modelMapper;
+    @Mock
+    private User user;
 
     @InjectMocks
     private UserServiceImpl userServiceOut;
@@ -35,7 +39,6 @@ class UserServiceTest {
     private static String LAST_NAME = "Popov";
     private static String PHONE_NUMBER = "+79053930303";
     private static String IMAGE = "Avatar";
-    private User user;
 
     @BeforeEach
     public void init() {
@@ -54,10 +57,8 @@ class UserServiceTest {
 
     @Test
     @DisplayName("Проверка поиска пользователя")
-    public void shouldReturnFindUser() {
+    public void shouldReturnExpectedFindUserDto() {
 
-        ModelMapper modelMapper = Mockito.mock(ModelMapper.class);
-        Mockito.when(userServiceOut.getCurrentUser()).thenReturn(user);
-        Mockito.when(modelMapper.getCurrentUser().).thenReturn(modelMapper);
+
     }
 }
