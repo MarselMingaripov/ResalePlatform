@@ -7,6 +7,7 @@ import ru.min.resaleplatform.model.dto.FullAdsDto;
 import ru.min.resaleplatform.model.dto.ResponseWrapperAds;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 public interface AdsService {
@@ -22,7 +23,7 @@ public interface AdsService {
 
     void deleteAdsById(int id);
 
-    AdsDto updateAds(int id, AdsPropertiesDto adsPropertiesDto);
+    AdsDto updateAds(int id, AdsPropertiesDto adsPropertiesDto) throws AccessDeniedException;
 
     String updateImage(int id, MultipartFile image) throws IOException;
 }

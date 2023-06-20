@@ -13,9 +13,11 @@ import ru.min.resaleplatform.model.dto.AdsPropertiesDto;
 import ru.min.resaleplatform.model.dto.FullAdsDto;
 import ru.min.resaleplatform.model.dto.ResponseWrapperAds;
 import ru.min.resaleplatform.service.AdsService;
+import ru.min.resaleplatform.service.ImageService;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,7 +57,7 @@ public class AdsController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<AdsDto> updateAds(@PathVariable int id,
-                                            @RequestBody AdsPropertiesDto adsPropertiesDto){
+                                            @RequestBody AdsPropertiesDto adsPropertiesDto) throws AccessDeniedException {
         return ResponseEntity.ok(adsService.updateAds(id, adsPropertiesDto));
     }
 

@@ -16,12 +16,14 @@ import ru.min.resaleplatform.model.dto.AdsPropertiesDto;
 import ru.min.resaleplatform.model.dto.FullAdsDto;
 import ru.min.resaleplatform.model.dto.ResponseWrapperAds;
 import ru.min.resaleplatform.repository.AdsRepository;
+import ru.min.resaleplatform.security.service.PermissionCheckService;
 import ru.min.resaleplatform.service.AdsService;
 import ru.min.resaleplatform.service.ImageService;
 import ru.min.resaleplatform.service.UserService;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -35,20 +37,13 @@ public class AdsServiceImpl implements AdsService {
     private final ImageService imageService;
     private final ModelMapper mapper;
     private final UserService userService;
+    private final PermissionCheckService permissionCheckService;
 
     @Value("${image.upload.path}")
     private String imageUploadPath;
 
     private final Logger logger = LoggerFactory.getLogger(AdsServiceImpl.class);
 
-    /*@PostConstruct
-    private void initMapper(){
-        mapper.addMappings(new AdsToAdsPropertiesDtoMapService());
-        mapper.addMappings(new AdsToAdsDtoMapService());
-        mapper.addMappings(new AdsToFullAdsDtoMapService());
-        mapper.addMappings(new CommentToCommentDtoMapService());
-        mapper.addMappings(new UserDtoToUserMapService());
-    }*/
 
     @Override
     public AdsDto createAds(AdsPropertiesDto adsPropertiesDto, MultipartFile image){
@@ -102,6 +97,8 @@ public class AdsServiceImpl implements AdsService {
     @Override
     public FullAdsDto findAdsById(int id){
         Ads ads = adsRepository.findById(id).orElseThrow();
+        FullAdsDto fullAdsDto = mapper.map(ads, FullAdsDto.class);
+        logger.info(fullAdsDto.getImage());
         return mapper.map(ads, FullAdsDto.class);
     }
 
@@ -115,15 +112,17 @@ public class AdsServiceImpl implements AdsService {
     }
 
     @Override
-    public AdsDto updateAds(int id, AdsPropertiesDto adsPropertiesDto){
+    public AdsDto updateAds(int id, AdsPropertiesDto adsPropertiesDto) throws AccessDeniedException {
         User user = userService.getCurrentUser();
-        Ads ads = adsRepository.findById(id).get();
+        Ads ads = adsRepository.findById(id).orElseThrow();
 
-        if (user.getRole().getAuthority() == "ADMIN" || ads.getAdsAuthor().getEmail().equals(user.getEmail())){
+        if (permissionCheckService.checkPermissionToUpdateAds(id, ads)){
             ads.setTitle(adsPropertiesDto.getTitle());
             ads.setPrice(adsPropertiesDto.getPrice());
             ads.setDescription(adsPropertiesDto.getDescription());
             adsRepository.save(ads);
+        } else {
+            throw new AccessDeniedException("Access denied");
         }
         return new AdsDto(user.getId(), ads.getImage(), ads.getId(), ads.getPrice(), ads.getTitle());
     }
@@ -155,6 +154,6 @@ public class AdsServiceImpl implements AdsService {
         String fileName = UUID.randomUUID() + "_" +
                 image.getOriginalFilename();
         image.transferTo(new File(imageUploadPath + fileName));
-        ads.setImage("\\static\\" + fileName);
+        ads.setImage("/static/" + fileName);
     }
 }

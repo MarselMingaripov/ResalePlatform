@@ -120,4 +120,9 @@ public class UserServiceImpl implements UserService {
     public User getCurrentUser() {
         return userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).get();
     }
+
+    @Override
+    public User findById(int id){
+        return userRepository.findById(id).orElseThrow();
+    }
 }

@@ -39,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean login(String userName, String password) {
 
-        UserDetails user = userDetailsService.loadUserByUsername(userName);
+        UserDetailsImpl user = (UserDetailsImpl) userDetailsService.loadUserByUsername(userName);
 
         if (!encoder.matches(password, user.getPassword())) {
             logger.warn("the password is incorrect");

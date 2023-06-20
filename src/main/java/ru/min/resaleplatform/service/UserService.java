@@ -26,4 +26,6 @@ public interface UserService {
     void updateImage(MultipartFile image) throws IOException;
 
     User getCurrentUser();
+
+    User findById(int id);
 }

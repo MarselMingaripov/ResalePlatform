@@ -10,7 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     @Value("${image.upload.path}")
-    String path;
+    private String path;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
