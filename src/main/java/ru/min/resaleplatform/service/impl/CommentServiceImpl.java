@@ -30,9 +30,9 @@ public class CommentServiceImpl implements CommentService {
     private final ModelMapper mapper;
 
     @Override
-    public ResponseWrapperComment getAllComments(int id){
+    public ResponseWrapperComment getAllComments(int id) {
         List<CommentDto> commentDtos = new ArrayList<>();
-        if (adsRepository.existsById(id)){
+        if (adsRepository.existsById(id)) {
             Ads ads = adsRepository.findById(id).get();
             List<Comment> comments = ads.getComments();
             for (Comment comment : comments) {
@@ -50,9 +50,9 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDto createComment(int id, TextDto text){
+    public CommentDto createComment(int id, TextDto text) {
         CommentDto commentDto = new CommentDto();
-        if (adsRepository.existsById(id)){
+        if (adsRepository.existsById(id)) {
             User user = userService.getCurrentUser();
             Ads ads = adsRepository.findById(id).get();
             Comment comment = new Comment(text.getText(), LocalDateTime.now().format(DateTimeFormatter.ofPattern(FORMATTER)), user, ads);
@@ -65,11 +65,15 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void deleteComment(int adId, int commentId){
-        if (adsRepository.existsById(adId) && commentRepository.existsById(commentId)){
+    public void deleteComment(int adId, int commentId) {
+        if (adsRepository.existsById(adId) && commentRepository.existsById(commentId) && (
+                userService.getCurrentUser().getRole().getAuthority() == "ADMIN" ||
+                        userService.getCurrentUser().getId() ==
+                        commentRepository.findById(commentId).get().getCommentAuthor().getId()
+                )) {
             Ads ads = adsRepository.findById(adId).get();
             for (Comment comment : ads.getComments()) {
-                if (comment.getId() == commentId){
+                if (comment.getId() == commentId) {
                     ads.getComments().remove(comment);
                     commentRepository.deleteById(commentId);
                 }
@@ -78,12 +82,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDto updateComment(int adId, int commentId, CommentDto commentDto){
+    public CommentDto updateComment(int adId, int commentId, CommentDto commentDto) {
         CommentDto commentDtoForFront = new CommentDto();
-        if (adsRepository.existsById(adId) && commentRepository.existsById(commentId)){
+        if (adsRepository.existsById(adId) && commentRepository.existsById(commentId)) {
             Ads ads = adsRepository.findById(adId).get();
             for (Comment comment : ads.getComments()) {
-                if (comment.getId() == commentId){
+                if (comment.getId() == commentId) {
                     comment.setText(commentDto.getText());
                     comment.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern(FORMATTER)));
                     commentRepository.save(comment);

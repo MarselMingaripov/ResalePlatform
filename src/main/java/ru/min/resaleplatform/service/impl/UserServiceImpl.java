@@ -102,6 +102,8 @@ public class UserServiceImpl implements UserService {
 
         User user = getCurrentUser();
         imageService.createDir(imageUploadPath, logger);
+        logger.info(user.toString());
+        logger.info(SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString());
         if (image.getContentType().startsWith("image/")) {
             String fileName = UUID.randomUUID() + "_" +
                     image.getOriginalFilename();

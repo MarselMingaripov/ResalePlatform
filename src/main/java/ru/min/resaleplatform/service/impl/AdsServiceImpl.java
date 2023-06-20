@@ -117,8 +117,9 @@ public class AdsServiceImpl implements AdsService {
     @Override
     public AdsDto updateAds(int id, AdsPropertiesDto adsPropertiesDto){
         User user = userService.getCurrentUser();
-        Ads ads = adsRepository.findById(id).orElseThrow(() -> new NotFoundException("Ads not found"));
-        if (user.getRole().getAuthority().equals("ADMIN") || ads.getAdsAuthor().getEmail().equals(user.getEmail())){
+        Ads ads = adsRepository.findById(id).get();
+
+        if (user.getRole().getAuthority() == "ADMIN" || ads.getAdsAuthor().getEmail().equals(user.getEmail())){
             ads.setTitle(adsPropertiesDto.getTitle());
             ads.setPrice(adsPropertiesDto.getPrice());
             ads.setDescription(adsPropertiesDto.getDescription());
