@@ -1,9 +1,11 @@
 package ru.min.resaleplatform.service.impl.mapping;
 
 import org.modelmapper.PropertyMap;
+import org.springframework.stereotype.Component;
 import ru.min.resaleplatform.model.Ads;
 import ru.min.resaleplatform.model.dto.FullAdsDto;
 
+@Component
 public class AdsToFullAdsDtoMapService extends PropertyMap<Ads, FullAdsDto> {
     @Override
     protected void configure() {
@@ -16,6 +18,5 @@ public class AdsToFullAdsDtoMapService extends PropertyMap<Ads, FullAdsDto> {
         map().setPhone(source.getAdsAuthor().getPhone());
         map().setPrice(source.getPrice());
         map().setTitle(source.getTitle());
-
     }
 }

@@ -1,9 +1,11 @@
 package ru.min.resaleplatform.service.impl.mapping;
 
 import org.modelmapper.PropertyMap;
+import org.springframework.stereotype.Component;
 import ru.min.resaleplatform.model.User;
 import ru.min.resaleplatform.model.dto.UserDto;
 
+@Component
 public class UserDtoToUserMapService extends PropertyMap<UserDto, User> {
     @Override
     protected void configure() {

@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
 import ru.min.resaleplatform.model.User;
@@ -30,27 +31,13 @@ import javax.validation.ValidationException;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
-    //private final AuthenticationManager authenticationManager;
     private final PasswordEncoder encoder;
-    private final UserDetailsService userDetailsService;
-    private final UserService userService;
+    private final UserDetailsServiceImpl userDetailsService;
 
     private final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     @Override
     public boolean login(String userName, String password) {
-
-        /*if (!userRepository.existsByEmail(userName)){
-            return false;
-        }
-
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(userName, password)
-
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        logger.info(String.valueOf(SecurityContextHolder.getContext().getAuthentication().isAuthenticated()));
-        return encoder.matches(password, userRepository.findByEmail(userName).get().getPassword());*/
 
         UserDetails user = userDetailsService.loadUserByUsername(userName);
 
@@ -58,26 +45,17 @@ public class AuthServiceImpl implements AuthService {
             logger.warn("the password is incorrect");
             throw new BadCredentialsException("Неверно указан пароль!");
         }
-        logger.info(String.valueOf(SecurityContextHolder.getContext().getAuthentication().isAuthenticated()));
-        logger.info(String.valueOf(SecurityContextHolder.getContext().getAuthentication().getAuthorities()));
         return true;
     }
 
     @Override
     public boolean register(RegisterReq registerReq, Role role) {
-        /*userRepository.save(new ru.min.resaleplatform.model.User(registerReq.getUsername(), encoder.encode(registerReq.getPassword()), registerReq.getFirstName(),
-                registerReq.getLastName(), registerReq.getPhone(), role));
-        return true;*/
         if (userRepository.existsByEmail(registerReq.getUsername())) {
             logger.warn("user already exists");
             throw new ValidationException(String.format("Пользователь \"%s\" уже зарегистрирован!", registerReq.getUsername()));
         }
 
-        User user = new User(registerReq.getUsername(), encoder.encode(registerReq.getPassword()), registerReq.getFirstName(),
-                registerReq.getLastName(), registerReq.getPhone(), role);
-        logger.info(user.getRole().getAuthority());
-        logger.info(user.getRole().name());
-        userRepository.save(user);
+        userDetailsService.createUser(registerReq);
         return true;
     }
 }
