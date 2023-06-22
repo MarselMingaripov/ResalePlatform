@@ -10,17 +10,21 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.CachingUserDetailsService;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import ru.min.resaleplatform.model.User;
 import ru.min.resaleplatform.model.dto.UserDto;
 import ru.min.resaleplatform.repository.UserRepository;
+import ru.min.resaleplatform.service.impl.ImageServiceImpl;
 import ru.min.resaleplatform.service.impl.UserServiceImpl;
 import org.modelmapper.ModelMapper;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -29,6 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+
 class UserServiceTest {
 
     @Mock
@@ -42,11 +47,20 @@ class UserServiceTest {
     @Mock
     private SecurityContext securityContext;
     @Mock
+    private SecurityContextHolder securityContextHolder;
+    @Mock
     private UserDetailsService userDetailsService;
-    private User user;
+    @Mock
+    private ImageService mockImageService;;
+    @Mock
+    private User mockUser;
 
     @InjectMocks
     private UserServiceImpl userServiceOut;
+    @InjectMocks
+    private ImageServiceImpl imageServiceOut;
+
+    private User user;
 
     private static String EMAIL = "user@gmail.com";
     private static String PASSWORD = "password";
@@ -55,18 +69,12 @@ class UserServiceTest {
     private static String PHONE_NUMBER = "+79053930303";
     private static String IMAGE = "Avatar";
 
-
-//    @Before
-//    public void setUp() {
-//        when(securityContext.getAuthentication()).thenReturn(authentication);
-//        SecurityContextHolder.setContext(securityContext);
-//    }
     @BeforeEach
     public void init() {
-//        user = new User(EMAIL, PASSWORD, FIRST_NAME, LAST_NAME, PHONE_NUMBER, IMAGE);
+        user = new User(EMAIL, PASSWORD, FIRST_NAME, LAST_NAME, PHONE_NUMBER, IMAGE);
 
 //        when(securityContext.getAuthentication()).thenReturn(authentication);
-//        SecurityContextHolder.setContext(securityContext);
+        SecurityContextHolder.setContext(securityContext);
     }
 
     @Test
@@ -91,13 +99,10 @@ class UserServiceTest {
         expectedUserDto.setLastName("Doe");
         expectedUserDto.setPhone("+79059059055");
 
+        when(securityContext.getAuthentication()).thenReturn(authentication);
         when(modelMapper.map(user, UserDto.class)).thenReturn(expectedUserDto);
-        when(userServiceOut.getCurrentUser()).thenReturn(user);
 
-        // Act
         UserDto actualUserDto = userServiceOut.findUser();
-
-        // Assert
         assertEquals(expectedUserDto, actualUserDto);
     }
 
@@ -129,5 +134,28 @@ class UserServiceTest {
 
         assertEquals(user, userDto);
 
+    }
+
+    @Test
+    void shouldReturnGetCurrentUser() {
+
+        String email = "user@example.com";
+        User expectedUser = new User();
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(email);
+        when(userRepositoryMock.findByEmail(email)).thenReturn(Optional.of(expectedUser));
+
+        User currentUser = userServiceOut.getCurrentUser();
+        assertEquals(expectedUser, currentUser);
+    }
+
+    @Test
+    void updateImage() {
+        MockMultipartFile mockFile = new MockMultipartFile(
+                "file", "image.jpg", "image/jpeg", "image data".getBytes());
+        Mockito.when(mockUser.toString()).thenReturn("Test User");
+        Authentication auth = Mockito.mock(Authentication.class);
+//        Mockito.when(auth.getAuthorities()).thenReturn(Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
     }
 }
