@@ -47,11 +47,11 @@ public class AdsServiceImpl implements AdsService {
 
 
     @Override
-    public AdsDto createAds(AdsPropertiesDto adsPropertiesDto, MultipartFile image){
+    public AdsDto createAds(AdsPropertiesDto adsPropertiesDto, MultipartFile image) {
         Ads ads = mapper.map(adsPropertiesDto, Ads.class);
 
-        try{
-            if (!image.isEmpty()){
+        try {
+            if (!image.isEmpty()) {
                 adsImageEdit(image, ads);
                 logger.info(image.getContentType());
             }
@@ -67,9 +67,8 @@ public class AdsServiceImpl implements AdsService {
     }
 
 
-
     @Override
-    public List<AdsDto> getCurrentUserAds(){
+    public List<AdsDto> getCurrentUserAds() {
         User user = userService.getCurrentUser();
         List<Ads> myAds = adsRepository.findByAdsAuthor_Email(user.getEmail());
         List<AdsDto> adsDtos = new ArrayList<>();
@@ -80,13 +79,13 @@ public class AdsServiceImpl implements AdsService {
     }
 
     @Override
-    public ResponseWrapperAds getMyAdsInStrangeForm(){
+    public ResponseWrapperAds getMyAdsInStrangeForm() {
         List<AdsDto> adsDtos = getCurrentUserAds();
         return new ResponseWrapperAds(adsDtos.size(), adsDtos);
     }
 
     @Override
-    public ResponseWrapperAds getAllAds(){
+    public ResponseWrapperAds getAllAds() {
         List<AdsDto> adsDtos = new ArrayList<>();
         List<Ads> ads = adsRepository.findAll();
         for (Ads ad : ads) {
@@ -96,15 +95,15 @@ public class AdsServiceImpl implements AdsService {
     }
 
     @Override
-    public FullAdsDto findAdsById(int id){
-        Ads ads = adsRepository.findById(id).orElseThrow();
+    public FullAdsDto findAdsById(int id) {
+        Ads ads = adsRepository.findById(id).orElseThrow(() -> new NotFoundException("Not found"));
         FullAdsDto fullAdsDto = mapper.map(ads, FullAdsDto.class);
         logger.info(fullAdsDto.getImage());
         return mapper.map(ads, FullAdsDto.class);
     }
 
     @Override
-    public void deleteAdsById(int id){
+    public void deleteAdsById(int id) {
         if (adsRepository.existsById(id)) {
             Ads ads = adsRepository.findById(id).orElseThrow();
             if (permissionCheckService.checkPermissionToUpdateAds(id, ads)) {
@@ -122,7 +121,7 @@ public class AdsServiceImpl implements AdsService {
         User user = userService.getCurrentUser();
         Ads ads = adsRepository.findById(id).orElseThrow();
 
-        if (permissionCheckService.checkPermissionToUpdateAds(id, ads)){
+        if (permissionCheckService.checkPermissionToUpdateAds(id, ads)) {
             ads.setTitle(adsPropertiesDto.getTitle());
             ads.setPrice(adsPropertiesDto.getPrice());
             ads.setDescription(adsPropertiesDto.getDescription());
@@ -137,12 +136,10 @@ public class AdsServiceImpl implements AdsService {
     public String updateImage(int id, MultipartFile image) throws IOException {
         User user = userService.getCurrentUser();
         String pathToImage = "";
-        if (adsRepository.existsById(id) && (user.getRole().getAuthority().equals("ADMIN") ||
-                adsRepository.findById(id).get().getAdsAuthor().getEmail().equals(user.getEmail()))){
-            Ads ads = adsRepository.findById(id).get();
-
-            try{
-                if (!image.isEmpty()){
+        Ads ads = adsRepository.findById(id).orElseThrow(() -> new NotFoundException("Not found"));
+        if (permissionCheckService.checkPermissionToUpdateAds(id, ads)) {
+            try {
+                if (!image.isEmpty()) {
                     adsImageEdit(image, ads);
                     adsRepository.save(ads);
                     pathToImage = ads.getImage();
@@ -151,6 +148,8 @@ public class AdsServiceImpl implements AdsService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else {
+            throw new AccessDeniedException("Access denied");
         }
         return pathToImage;
     }

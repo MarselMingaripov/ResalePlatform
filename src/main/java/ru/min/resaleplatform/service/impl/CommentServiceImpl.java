@@ -64,6 +64,8 @@ public class CommentServiceImpl implements CommentService {
             ads.getComments().add(comment);
             adsRepository.save(ads);
             commentDto = mapper.map(comment, CommentDto.class);
+        } else {
+            throw new NotFoundException("Not found");
         }
         return commentDto;
     }
