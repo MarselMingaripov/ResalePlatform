@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.webjars.NotFoundException;
+import ru.min.resaleplatform.exception.AccessException;
 import ru.min.resaleplatform.model.Ads;
 import ru.min.resaleplatform.model.User;
 import ru.min.resaleplatform.model.dto.AdsDto;
@@ -105,7 +106,12 @@ public class AdsServiceImpl implements AdsService {
     @Override
     public void deleteAdsById(int id){
         if (adsRepository.existsById(id)) {
-            adsRepository.deleteById(id);
+            Ads ads = adsRepository.findById(id).orElseThrow();
+            if (permissionCheckService.checkPermissionToUpdateAds(id, ads)) {
+                adsRepository.deleteById(id);
+            } else {
+                throw new AccessException("Access denied");
+            }
         } else {
             throw new NotFoundException("Ads not found");
         }
@@ -122,7 +128,7 @@ public class AdsServiceImpl implements AdsService {
             ads.setDescription(adsPropertiesDto.getDescription());
             adsRepository.save(ads);
         } else {
-            throw new AccessDeniedException("Access denied");
+            throw new AccessException("Access denied");
         }
         return new AdsDto(user.getId(), ads.getImage(), ads.getId(), ads.getPrice(), ads.getTitle());
     }

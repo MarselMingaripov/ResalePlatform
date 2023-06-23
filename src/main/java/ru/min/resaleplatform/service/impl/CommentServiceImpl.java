@@ -3,6 +3,8 @@ package ru.min.resaleplatform.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.webjars.NotFoundException;
+import ru.min.resaleplatform.exception.AccessException;
 import ru.min.resaleplatform.model.Ads;
 import ru.min.resaleplatform.model.Comment;
 import ru.min.resaleplatform.model.User;
@@ -68,23 +70,29 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void deleteComment(int adId, int commentId) {
-        if (adsRepository.existsById(adId) && commentRepository.existsById(commentId) && (
-                userService.getCurrentUser().getRole().getAuthority() == "ADMIN" ||
-                        userService.getCurrentUser().getId() ==
-                        commentRepository.findById(commentId).get().getCommentAuthor().getId()
-                )) {
-            Ads ads = adsRepository.findById(adId).get();
+        Comment commentForRemove = new Comment();
+        if (adsRepository.existsById(adId) && commentRepository.existsById(commentId)) {
+            Ads ads = adsRepository.findById(adId).orElseThrow();
             for (Comment comment : ads.getComments()) {
                 if (comment.getId() == commentId) {
-                    ads.getComments().remove(comment);
-                    commentRepository.deleteById(commentId);
+                    if (permissionCheckService.checkPermissionToUpdateComment(commentId, comment)) {
+                        commentForRemove = comment;
+                    } else {
+                        throw new AccessException("Access denied");
+                    }
                 }
             }
+            if (commentForRemove != null) {
+                ads.getComments().remove(commentForRemove);
+                commentRepository.deleteById(commentId);
+            }
+        } else {
+            throw new NotFoundException("Not found");
         }
     }
 
     @Override
-    public Comment findById(int id){
+    public Comment findById(int id) {
         return commentRepository.findById(id).orElseThrow();
     }
 
@@ -94,14 +102,19 @@ public class CommentServiceImpl implements CommentService {
         if (adsRepository.existsById(adId) && commentRepository.existsById(commentId)) {
             Ads ads = adsRepository.findById(adId).orElseThrow();
             for (Comment comment : ads.getComments()) {
-                if (comment.getId() == commentId && permissionCheckService.checkPermissionToUpdateComment(commentId, comment)) {
-                    comment.setText(commentDto.getText());
-                    comment.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern(FORMATTER)));
-                    commentRepository.save(comment);
-                    //adsRepository.save(ads);
-                    commentDtoForFront = mapper.map(comment, CommentDto.class);
+                if (comment.getId() == commentId) {
+                    if (permissionCheckService.checkPermissionToUpdateComment(commentId, comment)) {
+                        comment.setText(commentDto.getText());
+                        comment.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern(FORMATTER)));
+                        commentRepository.save(comment);
+                        commentDtoForFront = mapper.map(comment, CommentDto.class);
+                    } else {
+                        throw new AccessException("Access denied");
+                    }
                 }
             }
+        } else {
+            throw new NotFoundException("Not found");
         }
         return commentDtoForFront;
     }

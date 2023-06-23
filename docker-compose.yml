@@ -1,0 +1,33 @@
+version: "3.5"
+services:
+  frontend:
+    container_name: "frontend"
+    image: ghcr.io/bizinmitya/front-react-avito:v1.13
+    build: ./
+    networks:
+      - alpine-net
+    ports:
+      - "3000:3000"
+  backend:
+    container_name: "backend"
+    image: bard1812/backend-for-resale-platform-skypro:1.0
+    build: ./
+    networks:
+      - alpine-net
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgresql
+  postgresql:
+    image: postgres:alpine3.17
+    networks:
+      - alpine-net
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_DB=db_resale
+networks:
+  alpine-net:
+    driver: bridge
