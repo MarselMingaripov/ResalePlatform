@@ -24,5 +24,5 @@ public interface AdsService {
 
     AdsDto updateAds(int id, AdsPropertiesDto adsPropertiesDto);
 
-    byte[] updateImage(int id, MultipartFile image) throws IOException;
+    String updateImage(int id, MultipartFile image) throws IOException;
 }

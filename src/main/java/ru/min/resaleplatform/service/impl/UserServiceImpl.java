@@ -15,6 +15,7 @@ import ru.min.resaleplatform.model.User;
 import ru.min.resaleplatform.model.dto.NewPasswordDto;
 import ru.min.resaleplatform.model.dto.UserDto;
 import ru.min.resaleplatform.repository.UserRepository;
+import ru.min.resaleplatform.service.ImageService;
 import ru.min.resaleplatform.service.UserService;
 import ru.min.resaleplatform.service.ValidationService;
 
@@ -36,6 +37,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ValidationService validationService;
+    private final ImageService imageService;
     private final PasswordEncoder encoder;
     private final ModelMapper modelMapper;
 
@@ -77,12 +79,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUser(UserDto userDto) {
         User user = getCurrentUser();
-        //user.setId(userDto.getId());
-        //user.setEmail(userDto.getEmail());
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
         user.setPhone(userDto.getPhone());
-        //user.setImage(userDto.getImage());
         userRepository.save(user);
         logger.info(user.toString());
         return modelMapper.map(user, UserDto.class);
@@ -102,7 +101,9 @@ public class UserServiceImpl implements UserService {
     public void updateImage(MultipartFile image) throws IOException {
 
         User user = getCurrentUser();
-        createDir(imageUploadPath, logger);
+        imageService.createDir(imageUploadPath, logger);
+        logger.info(user.toString());
+        logger.info(SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString());
         if (image.getContentType().startsWith("image/")) {
             String fileName = UUID.randomUUID() + "_" +
                     image.getOriginalFilename();
@@ -111,21 +112,6 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user);
             logger.info(image.getContentType());
             logger.info(fileName);
-        }
-    }
-
-    static void createDir(String imageUploadPath, Logger logger) {
-        Path path = Paths.get(imageUploadPath);
-
-        if (!Files.exists(path)) {
-            try {
-                Files.createDirectories(path);
-                logger.info("Путь успешно создан: " + path);
-            } catch (IOException e) {
-                logger.error("Не удалось создать путь: " + e.getMessage());
-            }
-        } else {
-            logger.info("Путь уже существует: " + path);
         }
     }
 

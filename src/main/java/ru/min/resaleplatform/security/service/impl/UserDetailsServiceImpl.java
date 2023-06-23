@@ -2,63 +2,44 @@ package ru.min.resaleplatform.security.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.min.resaleplatform.model.User;
 import ru.min.resaleplatform.repository.UserRepository;
+import ru.min.resaleplatform.security.dto.RegisterReq;
+import ru.min.resaleplatform.security.dto.Role;
 
-@Transactional
+import javax.validation.ValidationException;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
-public class UserDetailsServiceImpl implements UserDetailsService, UserDetailsPasswordService {
-    /*private final UserRepository userRepository;
-
-    @Override
-    @Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
-        return UserDetailsImpl.build(user);
-
-    }*/
+public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
+    private final PasswordEncoder encoder;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = getUserByUsername(username);
-
-        return new MyUserDetails(user);
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Not found"));
+        return new UserDetailsImpl(user);
     }
 
-    @Override
-    public UserDetails updatePassword(UserDetails userDetails, String newPassword) {
-        User user = getUserByUsername(userDetails.getUsername());
-
-        user.setPassword(newPassword);
-
-        MyUserDetails updatedUserDetails = new MyUserDetails(userRepository.save(user));
-
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(updatedUserDetails, null, updatedUserDetails.getAuthorities())
-        );
-
-        return updatedUserDetails;
+    public void createUser(RegisterReq registerReq) {
+        if (userRepository.existsByEmail(registerReq.getUsername())) {
+            throw new ValidationException(String.format("Пользователь \"%s\" уже зарегистрирован!", registerReq.getUsername()));
+        }
+        User user = new User();
+        user.setFirstName(registerReq.getFirstName());
+        user.setLastName(registerReq.getLastName());
+        user.setEmail(registerReq.getUsername());
+        user.setPassword(encoder.encode(registerReq.getPassword()));
+        user.setPhone(registerReq.getPhone());
+        user.setRole(Role.USER);
+        userRepository.save(user);
+        log.debug("User successfully saved = {}", user);
     }
-
-    private User getUserByUsername(String username) {
-        return userRepository.findByEmail(username).orElseThrow(() ->
-                new UsernameNotFoundException(String.format("Пользователь с email: \"%s\" не найден", username)));
-    }
-
 }
