@@ -88,16 +88,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User deleteById(int id) {
-        return null;
-    }
-
-    @Override
-    public List<User> findAll() {
-        return null;
-    }
-
-    @Override
     public void updateImage(MultipartFile image) throws IOException {
 
         User user = getCurrentUser();

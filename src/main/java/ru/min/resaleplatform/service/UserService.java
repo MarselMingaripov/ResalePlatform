@@ -11,21 +11,49 @@ import java.util.List;
 
 public interface UserService {
 
+    /**
+     * создать пользователя
+     * @param user
+     * @return
+     */
     User createUser(User user);
 
+    /**
+     * поиск пользователя
+     * @return
+     */
     UserDto findUser();
 
+    /**
+     * обновить пароль пользователя
+     * @param newPasswordDto
+     */
     void updatePassword(NewPasswordDto newPasswordDto);
 
+    /**
+     * обновить пользователя
+     * @param userDto
+     * @return
+     */
     UserDto updateUser(UserDto userDto);
 
-    User deleteById(int id);
-
-    List<User> findAll();
-
+    /**
+     * обновить изображение пользователя
+     * @param image
+     * @throws IOException
+     */
     void updateImage(MultipartFile image) throws IOException;
 
+    /**
+     * получить текущего пользователя
+     * @return
+     */
     User getCurrentUser();
 
+    /**
+     * поиск пользователя по ид
+     * @param id
+     * @return
+     */
     User findById(int id);
 }
