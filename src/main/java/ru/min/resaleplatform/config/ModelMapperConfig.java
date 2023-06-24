@@ -10,20 +10,14 @@ import ru.min.resaleplatform.service.impl.mapping.*;
 @RequiredArgsConstructor
 public class ModelMapperConfig {
 
-    private final AdsToAdsDtoMapService adsToAdsDtoMapService;
-    private final AdsToAdsPropertiesDtoMapService adsToAdsPropertiesDtoMapService;
-    private final AdsToFullAdsDtoMapService adsToFullAdsDtoMapService;
-    private final CommentToCommentDtoMapService commentToCommentDtoMapService;
-    private final UserDtoToUserMapService userDtoToUserMapService;
-
     @Bean
     public ModelMapper getModelMapper() {
         ModelMapper mapper = new ModelMapper();
-        mapper.addMappings(adsToAdsDtoMapService);
-        mapper.addMappings(adsToAdsPropertiesDtoMapService);
-        mapper.addMappings(adsToFullAdsDtoMapService);
-        mapper.addMappings(commentToCommentDtoMapService);
-        mapper.addMappings(userDtoToUserMapService);
+        mapper.addMappings(new AdsToAdsDtoMapService());
+        mapper.addMappings(new AdsToAdsPropertiesDtoMapService());
+        mapper.addMappings(new AdsToFullAdsDtoMapService());
+        mapper.addMappings(new CommentToCommentDtoMapService());
+        mapper.addMappings(new UserDtoToUserMapService());
         return mapper;
     }
 }

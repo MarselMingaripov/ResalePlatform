@@ -23,7 +23,7 @@ public class Ads {
     private String image;
     @ManyToOne
     private User adsAuthor;
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 
     public Ads(String description, int price, String title, String image) {

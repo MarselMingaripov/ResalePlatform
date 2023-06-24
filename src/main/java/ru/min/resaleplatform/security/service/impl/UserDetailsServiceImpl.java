@@ -38,7 +38,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         user.setEmail(registerReq.getUsername());
         user.setPassword(encoder.encode(registerReq.getPassword()));
         user.setPhone(registerReq.getPhone());
-        user.setRole(Role.USER);
+        user.setRole(registerReq.getRole());
         userRepository.save(user);
         log.debug("User successfully saved = {}", user);
     }
