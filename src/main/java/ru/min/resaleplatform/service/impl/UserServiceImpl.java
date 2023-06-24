@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
             String fileName = UUID.randomUUID() + "_" +
                     image.getOriginalFilename();
             image.transferTo(new File(imageUploadPath + fileName));
-            user.setImage("\\static\\" + fileName);
+            user.setImage("/static/" + fileName);
             userRepository.save(user);
             logger.info(image.getContentType());
             logger.info(fileName);
