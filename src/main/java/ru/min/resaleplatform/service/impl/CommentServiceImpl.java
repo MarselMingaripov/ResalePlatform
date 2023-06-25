@@ -72,21 +72,14 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void deleteComment(int adId, int commentId) {
-        Comment commentForRemove = new Comment();
         if (adsRepository.existsById(adId) && commentRepository.existsById(commentId)) {
             Ads ads = adsRepository.findById(adId).orElseThrow();
-            for (Comment comment : ads.getComments()) {
-                if (comment.getId() == commentId) {
-                    if (permissionCheckService.checkPermissionToUpdateComment(commentId, comment)) {
-                        commentForRemove = comment;
-                    } else {
-                        throw new AccessException("Access denied");
-                    }
-                }
-            }
-            if (commentForRemove != null) {
-                ads.getComments().remove(commentForRemove);
+            Comment comment = commentRepository.findById(commentId).orElseThrow();
+            if (permissionCheckService.checkPermissionToUpdateComment(commentId, comment)) {
+                ads.getComments().remove(comment);
                 commentRepository.deleteById(commentId);
+            } else {
+                throw new AccessException("Access denied");
             }
         } else {
             throw new NotFoundException("Not found");
