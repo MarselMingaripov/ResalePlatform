@@ -107,6 +107,18 @@ public class AdsServiceImpl implements AdsService {
         if (adsRepository.existsById(id)) {
             Ads ads = adsRepository.findById(id).orElseThrow();
             if (permissionCheckService.checkPermissionToUpdateAds(id, ads)) {
+                String name = ads.getImage().replace("/static/", "");
+                String filepath = imageUploadPath + name;
+                File file = new File(filepath);
+                if (file.exists()){
+                    if (file.delete()){
+                        logger.info("файл удален");
+                    } else {
+                        logger.info("файл не удалось удалить");
+                    }
+                } else {
+                    logger.info("файл не найден");
+                }
                 adsRepository.deleteById(id);
             } else {
                 throw new AccessException("Access denied");
